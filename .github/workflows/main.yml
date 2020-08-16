@@ -16,21 +16,31 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 2.2.108
+        dotnet-version: 3.1.401
 
-    - name: Build
-      run: dotnet build --configuration Release
+    - name: Publish win-x64
+      run: dotnet publish --configuration Release --runtime win-x64 --self-contained false --output "$env:GITHUB_WORKSPACE\win-x64"
+
+    - name: Publish linux-x64
+      run: dotnet publish --configuration Release --runtime linux-x64 --self-contained false --output "$env:GITHUB_WORKSPACE\linux-x64"
 
     - name: Get Ref Detail
       uses: markashleybell/actions-get-ref-detail@v1
       id: ref_detail
 
-    - name: Create binary package
+    - name: Create win-x64 binary package
       env:
-        BINARY_PACKAGE_FILENAME: ${{ format('dbup-cli-{0}.zip', steps.ref_detail.outputs.ref_name) }}
+        BINARY_PACKAGE_FILENAME_WIN_X64: ${{ format('dbup-cli-{0}-win-x64.zip', steps.ref_detail.outputs.ref_name) }}
       run: |
         cd "C:\Program Files\7-Zip"
-        .\7z.exe a -tzip $env:GITHUB_WORKSPACE\$env:BINARY_PACKAGE_FILENAME $env:GITHUB_WORKSPACE\dbup-cli\bin\Release\net472\* "-xr!*.pdb" "-xr!*.xml"
+        .\7z.exe a -tzip $env:GITHUB_WORKSPACE\$env:BINARY_PACKAGE_FILENAME_WIN_X64 $env:GITHUB_WORKSPACE\win-x64\* "-xr!*.pdb" "-xr!*.xml"
+
+    - name: Create linux-x64 binary package
+      env:
+        BINARY_PACKAGE_FILENAME_LINUX_X64: ${{ format('dbup-cli-{0}-linux-x64.zip', steps.ref_detail.outputs.ref_name) }}
+      run: |
+        cd "C:\Program Files\7-Zip"
+        .\7z.exe a -tzip $env:GITHUB_WORKSPACE\$env:BINARY_PACKAGE_FILENAME_LINUX_X64 $env:GITHUB_WORKSPACE\linux-x64\* "-xr!*.pdb" "-xr!*.xml"
 
     - name: Create GitHub release
       id: create_release
@@ -43,12 +53,22 @@ jobs:
         draft: false
         prerelease: false
 
-    - name: Upload release asset
+    - name: Upload win-x64 release asset
       uses: actions/upload-release-asset@v1.0.1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }} # References the create_release step by ID to get its outputs object, which includes an `upload_url`
-        asset_path: ${{ format('./dbup-cli-{0}.zip', steps.ref_detail.outputs.ref_name) }}
-        asset_name: ${{ format('dbup-cli-{0}.zip', steps.ref_detail.outputs.ref_name) }}
+        asset_path: ${{ format('./dbup-cli-{0}-win-x64.zip', steps.ref_detail.outputs.ref_name) }}
+        asset_name: ${{ format('dbup-cli-{0}-win-x64.zip', steps.ref_detail.outputs.ref_name) }}
+        asset_content_type: application/zip
+
+    - name: Upload linux-x64 release asset
+      uses: actions/upload-release-asset@v1.0.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} # References the create_release step by ID to get its outputs object, which includes an `upload_url`
+        asset_path: ${{ format('./dbup-cli-{0}-linux-x64.zip', steps.ref_detail.outputs.ref_name) }}
+        asset_name: ${{ format('dbup-cli-{0}-linux-x64.zip', steps.ref_detail.outputs.ref_name) }}
         asset_content_type: application/zip
