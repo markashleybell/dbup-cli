@@ -20,7 +20,7 @@ jobs:
       run: dotnet publish --configuration Release --runtime linux-x64 --self-contained false --output "$env:GITHUB_WORKSPACE\linux-x64"
 
     - name: Get Ref Detail
-      uses: markashleybell/actions-get-ref-detail@v1
+      uses: markashleybell/actions-get-ref-detail@v2
       id: ref_detail
 
     - name: Create win-x64 binary package
