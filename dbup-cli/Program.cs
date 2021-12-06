@@ -12,7 +12,7 @@ namespace dbup
             {
                 var currentVersion = Assembly.GetEntryAssembly().GetName().Version;
 
-                Console.WriteLine("dbup-cli " + currentVersion);
+                Console.WriteLine("dbup " + currentVersion);
                 Console.WriteLine("Usage: dbup <scriptsfolder> <connectionstring>");
 
                 return -1;
