@@ -5,7 +5,7 @@
         <OutputType>Exe</OutputType>
         <AssemblyName>dbup</AssemblyName>
         <RootNamespace>dbup</RootNamespace>
-        <Version>0.0.5</Version>
+        <Version>0.0.6</Version>
     </PropertyGroup>
 
     <ItemGroup>
